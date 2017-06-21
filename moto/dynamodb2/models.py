@@ -397,6 +397,15 @@ class Table(BaseModel):
         if filter_kwargs:
             for result in possible_results:
                 for field, value in filter_kwargs.items():
+
+                    op = value.get(u'ComparisonOperator')
+                    if op == 'NULL':
+                        from .comparisons import COMPARISON_FUNCS
+                        if COMPARISON_FUNCS[op](result.attrs.get(field)):
+                            results.append(result)
+                        continue
+
+
                     dynamo_types = [DynamoType(ele) for ele in value[
                         "AttributeValueList"]]
                     if result.attrs.get(field).compare(value['ComparisonOperator'], dynamo_types):
